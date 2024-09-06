@@ -139,7 +139,6 @@ public class Player : MonoBehaviour
         {
             rb.gravityScale = 1;
             rb.velocity = new Vector2(wallJumpForceX * (isFacingRight ? 1 : -1), wallJumpForceY);
-            Debug.Log("fly");
             isWallGrabbing = false; // Ngừng bám vào tường sau khi nhảy
             ChangeAnim("fly");
          
