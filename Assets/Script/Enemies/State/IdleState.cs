@@ -22,7 +22,6 @@ public class IdleState : IState
         {
             enemies.changeState(new PatrolState());
         }
-        
     }
 
     public void onExit(Enemies enemies)

@@ -9,23 +9,27 @@ using UnityEngine;
 public class Enemies : MonoBehaviour
 {
 
-    [SerializeField] private IState currState;
-    [SerializeField] private Rigidbody2D rb;
-    [SerializeField] private float moveSpeed;
-    [SerializeField] private float ActackRange;
+    public IState currState;
+    public Rigidbody2D rb;
+    public  float moveSpeed;
+    public float ActackRange;
     public Animator anim;
     public String currentAnimName;
+    public float moveDistance = 2f; // Khoảng cách cố định 
     private Player target;
-    public bool IsRight;
     public Player Target => target;
-    public GameObject thunderPrefab;
-    public float moveDistance = 2f; // Khoảng cách cố định
     private Vector3 startPosition;
+    public bool IsRight;
     private bool isChangingDirection = false; // Biến này để kiểm tra xem đã đổi hướng hay chưa
-    private void Start()
+    private float hp;
+    private bool IsDead => hp <= 0;
+    
+    
+    protected virtual void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
-        changeState(new IdleState());
+         rb = GetComponent<Rigidbody2D>();
+        OnInit();
+
     }
 
     public void Update()
@@ -35,20 +39,49 @@ public class Enemies : MonoBehaviour
             currState.onExcute(this);
         }
     }
-    public  void OnInit()
+
+    public virtual void OnInit()
+    {
+        hp = 10;
+       
+    }
+
+    public virtual void DesSpawn()
     {
 
     }
-
-    public void DesSpawn()
+    protected virtual void OnDeath()
     {
 
     }
-
-    public void OnDeath()
+   
+  
+    protected void ChangeAnim(string animName)
     {
-        ChangeAnim("die");
+        if (currentAnimName != animName)
+        {
+            anim.ResetTrigger(animName);
+            currentAnimName = animName;
+            anim.SetTrigger(animName);
+        }
     }
+
+
+
+
+    public void OnHit(float damage)
+    {
+        if (!IsDead)
+        {
+            hp -= damage;
+            if (IsDead)
+            {
+                OnDeath();
+            }
+        }
+    }
+
+
     public void changeState(IState newState)
     {
         if (currState != null) 
@@ -80,7 +113,7 @@ public class Enemies : MonoBehaviour
         }
     }
 
-    public void Moving() 
+    public virtual void Moving() 
     {
         ChangeAnim("run");
         rb.velocity = transform.right * moveSpeed;
@@ -119,49 +152,17 @@ public class Enemies : MonoBehaviour
     }
 
    
-    public void Atk()
+    public virtual void Atk()
     {
-        
         ChangeAnim("atk");
        
     }
    
-
-    IEnumerator Spell()
+    public virtual void Cast()
     {
-
-        StopMoving();
-        yield return new WaitForSeconds(1f);
-
-        List<GameObject> spawnedThunders = new List<GameObject>();
-
-        for (int i = 0; i <= 3; i++)
-        {
-            GameObject thunderR = Instantiate(thunderPrefab, new Vector2(transform.position.x + i * 3, transform.position.y+1), Quaternion.identity);
-            GameObject thunderL = Instantiate(thunderPrefab, new Vector2(transform.position.x - i * 3, transform.position.y+1), Quaternion.identity);
-
-            // Thêm vào danh sách để quản lý và hủy sau này
-            spawnedThunders.Add(thunderR);
-            spawnedThunders.Add(thunderL);
-        }
-
-        yield return new WaitForSeconds(1f);
-
-        // Hủy các object thunder sau 1 giây
-        foreach (GameObject thunder in spawnedThunders)
-        {
-            Destroy(thunder);
-        }
-
-        ChangeAnim("done");
+       
     }
 
-
-    public void Cast()
-    {
-        ChangeAnim("cast");
-        StartCoroutine(Spell());    
-    }
     public void ChangedDirection(bool IsRight)
     {
         this.IsRight = IsRight;
@@ -177,16 +178,7 @@ public class Enemies : MonoBehaviour
         else
             return false;
     }
-    public void ChangeAnim(string animName)
-    {
-        if (currentAnimName != animName)
-        {
-            anim.ResetTrigger(animName);
-            currentAnimName = animName;
-            anim.SetTrigger(animName);
-
-        }
-    }
+    
 
 
 

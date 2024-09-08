@@ -4,24 +4,21 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class Player : MonoBehaviour 
+public class Player : Character
 {
     // Start is called before the first frame update
     private Rigidbody2D rb;
-    
     public bool moving;
     [SerializeField] float speed;
     [SerializeField] private float jumpForce;
-    public Animator anim;
-    private String currentAnimName;
     public Vector2 fallDirection = new Vector2(1, -1); // Hướng rơi chéo
     public float fallSpeed = 0.5f; // Tốc độ rơi chéo
     public Transform groundCheck;
     public LayerMask groundLayer;
     float hor;
-    Vector2 dir;
     public bool isFacingRight = true;
     public bool actack = false;
+    public bool idDeath = false;
     public static Player Instance;
 
     public float wallJumpForceX = 5f; // Lực theo phương ngang khi nhảy tường
@@ -54,6 +51,24 @@ public class Player : MonoBehaviour
         jumpForce = 10;
 
     }
+
+    public override void OnInit()
+    {
+        base.OnInit();
+        actack = false;
+        idDeath = false;
+
+    }
+
+    public override void DesSpawn()
+    {
+        base.DesSpawn();
+    }
+    protected override void OnDeath()
+    {
+        base.OnDeath();
+    }
+
     private void Update()
     {
         if(wallGrabTimer >0)
@@ -208,17 +223,6 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void ChangeAnim(string animName)
-    {
-        if (currentAnimName != animName)
-        {
-            anim.ResetTrigger(animName);
-            currentAnimName = animName;
-            anim.SetTrigger(animName);
-        }
-    }
-
-
-
+    
 
 }

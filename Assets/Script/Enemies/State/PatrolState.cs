@@ -15,33 +15,72 @@ public class PatrolState : IState
 
     public void onExcute(Enemies enemies)
     {
-        
-        if (enemies.Target != null)
+        timer += Time.deltaTime;
+        if (enemies is Boss) // neu la boss
         {
-            enemies.ChangedDirection(enemies.Target.transform.position.x > enemies.transform.position.x);
-            if (enemies.targetInRange())
+            if (enemies.Target != null)
             {
-                enemies.changeState(new AtkState());
-            }
-            else
-            {
-                enemies.Moving();
-                
-            }
+                enemies.ChangedDirection(enemies.Target.transform.position.x > enemies.transform.position.x);
+                if (enemies.targetInRange())
+                {
+                    enemies.changeState(new AtkState());
+                }
+                else
+                {
+                    enemies.Moving();
 
-        }
-        else
-        {
-            if (timer < radTime)
-            {
-                enemies.Moving();
-                
+                }
+
             }
             else
             {
-                enemies.changeState(new IdleState());
+                if (timer < radTime)
+                {
+                    enemies.Moving();
+
+                }
+                else
+                {
+                    enemies.changeState(new IdleState());
+                }
             }
         }
+        else if (enemies is Soldier) // linh
+        {
+            if (enemies.Target != null)
+            {
+                enemies.ChangedDirection(enemies.Target.transform.position.x > enemies.transform.position.x);
+                if (enemies.targetInRange())
+                {
+                    enemies.changeState(new AtkState()); // co muc tieu , trong tam danh  -> can chien
+                }
+                else
+                {
+                    enemies.changeState(new CastState()); // co muc tieu , ngoai tam danh -> danh xa
+
+                }
+
+            }
+            else
+            {
+                if (timer < radTime)
+                {
+                    enemies.Moving();
+
+                }
+                else
+                {
+                    enemies.changeState(new IdleState());
+                }
+            }
+        }
+
+
+
+
+
+
+        
         
     }
 
