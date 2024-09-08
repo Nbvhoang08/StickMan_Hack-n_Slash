@@ -5,10 +5,10 @@ using UnityEngine;
 public class CameraFollow : MonoBehaviour
 {
     public Transform target;  // Đối tượng mà camera sẽ theo dõi
-    public float smoothSpeed = 0.125f;  // Tốc độ làm mượt chuyển động của camera
+    public float smoothSpeed ;  // Tốc độ làm mượt chuyển động của camera
     public Vector3 offset;  // Khoảng cách giữa camera và target
 
-    void LateUpdate()
+    void FixedUpdate()
     {
         // Vị trí mong muốn của camera
         Vector3 desiredPosition = target.position + offset;
