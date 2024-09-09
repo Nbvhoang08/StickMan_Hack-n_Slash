@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Player : Character
@@ -17,7 +16,8 @@ public class Player : Character
     public LayerMask groundLayer;
     float hor;
     public bool isFacingRight = true;
-    public bool actack = false;
+    public bool attack = false;
+    public bool isMoing = false;
     public bool idDeath = false;
     public static Player Instance;
 
@@ -55,8 +55,9 @@ public class Player : Character
     public override void OnInit()
     {
         base.OnInit();
-        actack = false;
+        attack = false;
         idDeath = false;
+        moving = true;
 
     }
 
@@ -73,33 +74,41 @@ public class Player : Character
     {
         if(wallGrabTimer >0)
             wallGrabTimer -= Time.deltaTime;
-
+        Debug.Log(attack);
+        /*  Debug.Log(attack);*/
+        ATK();
+        Move();
     }
     void FixedUpdate()
     {
         hor = Input.GetAxisRaw("Horizontal");
-        ATK();
+       
         Jump();
         Flip();
-        Move();
+        
         WallJump();
         
     }
     private void Move()
     {
-        if (IsGrounded() && !actack)
+        if (IsGrounded())
         {
             rb.velocity = new Vector2(hor * speed, rb.velocity.y);
 
-            if (hor == 0 )
+            if (!attack)
             {
-                ChangeAnim("idle");
-            }
-            else
-            {
-                ChangeAnim("run");
+                if (hor == 0)
+                {
+                    ChangeAnim("idle");
 
+                }
+                else
+                {
+                    ChangeAnim("run");
+
+                }
             }
+           
         }
         else
         {
@@ -119,6 +128,24 @@ public class Player : Character
             }
 
 
+        }
+    }
+    private void ATK()
+    {
+        if (attack)
+        {
+            ChangeAnim("atk");
+        }
+        
+        if (Input.GetKey(KeyCode.Q))
+        {
+            ChangeAnim("atk");
+            attack = true;
+        }
+        else if (Input.GetKeyUp(KeyCode.Q)) // Chỉ thay đổi animation về idle nếu đang ở trạng thái tấn công
+        {
+            attack = false;
+            Debug.Log("ddada");
         }
     }
 
@@ -176,20 +203,7 @@ public class Player : Character
     }
 
 
-    private void ATK()
-    {
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            ChangeAnim("atk");
-            actack = true;
-        }
-        if (Input.GetKeyUp(KeyCode.Q))
-        {
-            ChangeAnim("idle");
-            actack = false;
-        }
 
-    }
 
     private bool IsGrounded()
     {
@@ -214,7 +228,7 @@ public class Player : Character
         {
             if (isFacingRight && hor < 0f || !isFacingRight && hor > 0f)
             {
-                ChangeAnim("turnAround");
+              
                 isFacingRight = !isFacingRight;
                 Vector3 localScale = transform.localScale;
                 localScale.x *= -1f;

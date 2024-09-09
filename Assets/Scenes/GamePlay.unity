@@ -266,7 +266,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d73b710ec305f246a5f287840ac700f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemy: {fileID: 0}
+  enemy: {fileID: 274591353}
 --- !u!1 &43471627
 GameObject:
   m_ObjectHideFlags: 0
@@ -4065,7 +4065,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!50 &1455667088
 Rigidbody2D:
   serializedVersion: 4
@@ -4638,7 +4638,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!61 &1884705885
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -4929,7 +4929,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   isFacingRight: 1
-  actack: 0
+  attack: 0
+  isMoing: 0
   idDeath: 0
   wallJumpForceX: 5
   wallJumpForceY: 7
