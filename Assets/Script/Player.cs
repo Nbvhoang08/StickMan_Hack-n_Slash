@@ -2,34 +2,60 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class Player : Character
 {
     // Start is called before the first frame update
-    private Rigidbody2D rb;
-    public bool moving;
-    [SerializeField] float speed;
-    [SerializeField] private float jumpForce;
-    public Vector2 fallDirection = new Vector2(1, -1); // Hướng rơi chéo
-    public float fallSpeed = 0.5f; // Tốc độ rơi chéo
-    public Transform groundCheck;
-    public LayerMask groundLayer;
-    float hor;
-    public bool isFacingRight = true;
+    public PlayerData Data;
+    #region Variables
+    public Rigidbody2D RB { get; private set; }
+    public bool IsFacingRight { get; private set; }
+    public bool IsJumping { get; private set; }
+    public bool IsWallJumping { get; private set; }
+    public bool IsSliding { get; private set; }
+
+    //Timers (also all fields, could be private and a method returning a bool could be used)
+    public float LastOnGroundTime { get; private set; }
+    public float LastOnWallTime { get; private set; }
+    public float LastOnWallRightTime { get; private set; }
+    public float LastOnWallLeftTime { get; private set; }
+
+    //Jump
+    private bool _isJumpCut;
+    private bool _isJumpFalling;
+
+    //Wall Jump
+    private float _wallJumpStartTime;
+    private int _lastWallJumpDir;
+
+    private Vector2 _moveInput;
+    public float LastPressedJumpTime { get; private set; }
+
+    //Set all of these up in the inspector
+    [Header("Checks")]
+    [SerializeField] private Transform _groundCheckPoint;
+    //Size of groundCheck depends on the size of your character generally you want them slightly small than width (for ground) and height (for the wall check)
+    [SerializeField] private Vector2 _groundCheckSize = new Vector2(0.49f, 0.03f);
+    [Space(5)]
+    [SerializeField] private Transform _frontWallCheckPoint;
+    [SerializeField] private Transform _backWallCheckPoint;
+    [SerializeField] private Vector2 _wallCheckSize = new Vector2(0.5f, 1f);
+    [Header("Layers & Tags")]
+    [SerializeField] private LayerMask _groundLayer;
+    #endregion
+    public float knockbackForce;
+    public static Player Instance;
+    public GameObject hitbox;
+    public GameObject firesSpark;
     public bool attack = false;
     public bool isMoing = false;
-    public bool idDeath = false;
-    public static Player Instance;
+    public bool isParry = false;
+    public bool KbFromR = false;
+    public float KbTotalTime;
+    public float KbCounter;
+    public Transform StartPos;
 
-    public float wallJumpForceX = 5f; // Lực theo phương ngang khi nhảy tường
-    public float wallJumpForceY = 7f; // Lực theo phương dọc khi nhảy tường
-    public Transform wallCheck; // Điểm để kiểm tra nếu chạm tường
-    public float wallCheckRadius = 0.1f;
-    public LayerMask wallLayer; // Layer của tường
-
-    bool isWallGrabbing = false;
-    float wallGrabDuration = 1f; // Thời gian bám trên tường
-    float wallGrabTimer;
 
     private void Awake()
     {
@@ -42,22 +68,22 @@ public class Player : Character
         {
             Destroy(gameObject);
         }
+          RB = GetComponent<Rigidbody2D>();
     }
-
-
-    void Start()
+    protected override void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
-        jumpForce = 10;
-
+        base.Start();
+        SetGravityScale(Data.gravityScale);
+        IsFacingRight = true;
     }
 
     public override void OnInit()
     {
         base.OnInit();
         attack = false;
-        idDeath = false;
-        moving = true;
+        isParry = false;
+        hitbox.SetActive(false);
+       
 
     }
 
@@ -72,63 +98,217 @@ public class Player : Character
 
     private void Update()
     {
-        if(wallGrabTimer >0)
-            wallGrabTimer -= Time.deltaTime;
-        Debug.Log(attack);
-        /*  Debug.Log(attack);*/
-        ATK();
-        Move();
-    }
-    void FixedUpdate()
-    {
-        hor = Input.GetAxisRaw("Horizontal");
-       
-        Jump();
-        Flip();
-        
-        WallJump();
-        
-    }
-    private void Move()
-    {
-        if (IsGrounded())
+        if (!IsDead)
         {
-            rb.velocity = new Vector2(hor * speed, rb.velocity.y);
-
-            if (!attack)
+            if (isParry)
             {
-                if (hor == 0)
+                if (firesSpark != null)
                 {
-                    ChangeAnim("idle");
-
-                }
-                else
-                {
-                    ChangeAnim("run");
+                    firesSpark.SetActive(true);
+                    Invoke(nameof(unActive), 0.3f);
 
                 }
             }
-           
+            else
+            {
+                firesSpark.SetActive(false);
+            }
+            #region TIMERS
+            LastOnGroundTime -= Time.deltaTime;
+            LastOnWallTime -= Time.deltaTime;
+            LastOnWallRightTime -= Time.deltaTime;
+            LastOnWallLeftTime -= Time.deltaTime;
+
+            LastPressedJumpTime -= Time.deltaTime;
+            #endregion
+
+            #region INPUT HANDLER
+            _moveInput.x = Input.GetAxisRaw("Horizontal");
+            _moveInput.y = Input.GetAxisRaw("Vertical");
+
+            if (_moveInput.x != 0)
+                CheckDirectionToFace(_moveInput.x > 0);
+
+            if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.C) || Input.GetKeyDown(KeyCode.J))
+            {
+                OnJumpInput();
+            }
+
+            if (Input.GetKeyUp(KeyCode.Space) || Input.GetKeyUp(KeyCode.C) || Input.GetKeyUp(KeyCode.J))
+            {
+                OnJumpUpInput();
+            }
+            #endregion
+
+            #region COLLISION CHECKS
+            if (!IsJumping)
+            {
+                //Ground Check
+                if (Physics2D.OverlapCircle(_groundCheckPoint.position, 0.2f, _groundLayer) && !IsJumping) //kiểm tra xem hộp thiết lập có chồng lên mặt đất không
+                {
+                    LastOnGroundTime = Data.coyoteTime; //nếu vậy đặt lastGrounded thành coyoteTime
+                }
+
+                /*     //Right Wall Check
+                     if (((Physics2D.OverlapBox(_frontWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && IsFacingRight)
+                             || (Physics2D.OverlapBox(_backWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && !IsFacingRight)) && !IsWallJumping)
+                     {
+                         LastOnWallRightTime = Data.coyoteTime;
+
+
+                     }
+
+                     //Right Wall Check
+                     if (((Physics2D.OverlapBox(_frontWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && !IsFacingRight)
+                         || (Physics2D.OverlapBox(_backWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && IsFacingRight)) && !IsWallJumping) 
+                     {
+                         LastOnWallLeftTime = Data.coyoteTime;
+                     }
+
+
+                     //Cần kiểm tra hai lần cho cả tường bên trái và bên phải vì bất cứ khi nào vở kịch xoay tường, các điểm kiểm tra sẽ đổi bên
+                     LastOnWallTime = Mathf.Max(LastOnWallLeftTime, LastOnWallRightTime);*/
+            }
+            #endregion
+
+            #region JUMP CHECKS
+            if (IsJumping && RB.velocity.y < 0)
+            {
+                IsJumping = false;
+                ChangeAnim("fall");
+                if (!IsWallJumping)
+                    _isJumpFalling = true;
+            }
+
+            if (IsWallJumping && Time.time - _wallJumpStartTime > Data.wallJumpTime)
+            {
+                IsWallJumping = false;
+            }
+
+            if (LastOnGroundTime > 0 && !IsJumping && !IsWallJumping)
+            {
+                _isJumpCut = false;
+
+                if (!IsJumping)
+                    _isJumpFalling = false;
+            }
+
+            //Jump
+            if (CanJump() && LastPressedJumpTime > 0)
+            {
+                IsJumping = true;
+                IsWallJumping = false;
+                _isJumpCut = false;
+                _isJumpFalling = false;
+                Jump();
+                ChangeAnim("jump");
+            }
+            /*  //WALL JUMP
+              else if (CanWallJump() && LastPressedJumpTime > 0)
+              {
+                  IsWallJumping = true;
+                  IsJumping = false;
+                  _isJumpCut = false;
+                  _isJumpFalling = false;
+                  _wallJumpStartTime = Time.time;
+                  _lastWallJumpDir = (LastOnWallRightTime > 0) ? -1 : 1;
+                  ChangeAnim("wallJump");
+                  WallJump(_lastWallJumpDir);
+                  Turn();
+
+              }*/
+            #endregion
+
+            #region SLIDE CHECKS
+            if (CanSlide() && ((LastOnWallLeftTime > 0 && _moveInput.x < 0) || (LastOnWallRightTime > 0 && _moveInput.x > 0)))
+                IsSliding = true;
+            else
+                IsSliding = false;
+            #endregion
+
+            #region GRAVITY
+            //Lực hấp dẫn cao hơn nếu chúng ta đã thả đầu vào nhảy hoặc đang rơi
+            if (IsSliding)
+            {
+                SetGravityScale(0);
+            }
+            else if (RB.velocity.y < 0 && _moveInput.y < 0)
+            {
+                //Lực hấp dẫn cao hơn nhiều nếu giữ chặt
+                SetGravityScale(Data.gravityScale * Data.fastFallGravityMult);
+                //Giới hạn tốc độ rơi tối đa, vì vậy khi rơi từ khoảng cách lớn, chúng ta không tăng tốc đến tốc độ cao một cách điên cuồng
+                RB.velocity = new Vector2(RB.velocity.x, Mathf.Max(RB.velocity.y, -Data.maxFastFallSpeed));
+            }
+            else if (_isJumpCut)
+            {
+                //Trọng lực cao hơn nếu thả nút nhảy
+                SetGravityScale(Data.gravityScale * Data.jumpCutGravityMult);
+                RB.velocity = new Vector2(RB.velocity.x, Mathf.Max(RB.velocity.y, -Data.maxFallSpeed));
+            }
+            else if ((IsJumping || IsWallJumping || _isJumpFalling) && Mathf.Abs(RB.velocity.y) < Data.jumpHangTimeThreshold)
+            {
+                SetGravityScale(Data.gravityScale * Data.jumpHangGravityMult);
+            }
+            else if (RB.velocity.y < 0)
+            {
+                //Trọng lực cao hơn nếu rơi
+                SetGravityScale(Data.gravityScale * Data.fallGravityMult);
+                // Giới hạn tốc độ rơi tối đa, vì vậy khi rơi từ khoảng cách lớn, chúng ta không tăng tốc đến tốc độ cao một cách điên cuồng
+                RB.velocity = new Vector2(RB.velocity.x, Mathf.Max(RB.velocity.y, -Data.maxFallSpeed));
+            }
+            else
+            {
+                //Lực hấp dẫn mặc định nếu đứng trên bệ hoặc di chuyển lên trên
+                SetGravityScale(Data.gravityScale);
+            }
+            #endregion
+
+            ATK();
         }
         else
         {
-            if (hor != 0) // Nếu có di chuyển ngang khi đang rơi
+            transform.position =StartPos.position;
+            OnInit();
+        }
+        
+        
+   
+    }
+    void FixedUpdate()
+    {
+        if(!IsDead)
+        {
+            if(KbCounter <= 0)
             {
-                rb.velocity = new Vector2(hor * speed, rb.velocity.y) + fallDirection * fallSpeed;
+                //Handle Run
+                if (IsWallJumping)
+                    Run(Data.wallJumpRunLerp);
+                else
+                    Run(1);
+
+                //Handle Slide
+                if (IsSliding)
+                    Slide();
+                
             }
-            else // Nếu không di chuyển ngang, chỉ rơi tự do
+            else
             {
-                rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y);
+                ChangeAnim("hurt");
+                if (KbFromR)
+                {
+                    RB.velocity = new Vector2(-knockbackForce, 0);
+
+                }
+                else 
+                {
+                    RB.velocity = new Vector2(knockbackForce, 0);
+                }
+                KbCounter -= Time.fixedDeltaTime;
             }
-
-            if (rb.velocity.y <= 0)
-            {
-                ChangeAnim("onGround");
-
-            }
-
+            
 
         }
+
     }
     private void ATK()
     {
@@ -136,107 +316,248 @@ public class Player : Character
         {
             ChangeAnim("atk");
         }
-        
+      
         if (Input.GetKey(KeyCode.Q))
         {
             ChangeAnim("atk");
             attack = true;
+            hitbox.SetActive(true);
         }
         else if (Input.GetKeyUp(KeyCode.Q)) // Chỉ thay đổi animation về idle nếu đang ở trạng thái tấn công
         {
             attack = false;
-            Debug.Log("ddada");
-        }
-    }
-
-    void Jump()
-    {
-
-        if (Input.GetButton("Jump") && IsGrounded())
-        {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-            // nhay khi dang dung tren mat dat    
-            ChangeAnim("jump");
-        }
-
-        if (Input.GetButtonUp("Jump") && rb.velocity.y > 0f)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f); // giam  toc khi nhay len 
+            hitbox.SetActive(false);
 
         }
     }
-    void WallJump()
+  
+  
+    #region INPUT CALLBACKS
+    //Methods which whandle input detected in Update()
+    public void OnJumpInput()
     {
-        // Kiểm tra nếu đang chạm vào tường và không đứng trên đất
-        if (IsTouchingWall() && !IsGrounded() && !isWallGrabbing)
-        {
-            isWallGrabbing = true;
-            wallGrabTimer = wallGrabDuration;
-            rb.velocity = new Vector2(0, 0); // Giữ nhân vật không rơi
-            rb.gravityScale = 0;
-        }
-
-        // Khi người chơi nhấn nhảy khi đang bám vào tường
-        if (isWallGrabbing && Input.GetButton("Jump"))
-        {
-            rb.gravityScale = 1;
-            rb.velocity = new Vector2(wallJumpForceX * (isFacingRight ? 1 : -1), wallJumpForceY);
-            isWallGrabbing = false; // Ngừng bám vào tường sau khi nhảy
-            ChangeAnim("fly");
-         
-        }
-
-        // Nếu không nhấn nhảy và hết thời gian bám trên tường
-        if (isWallGrabbing)
-        {
-            
-            ChangeAnim("wallSlide");
-            if (wallGrabTimer <= 0)
-            {
-                ChangeAnim("fall");
-                Debug.Log(wallGrabTimer);
-                isWallGrabbing = false;
-                rb.gravityScale = 1;
-                rb.velocity = new Vector2(rb.velocity.x, -fallSpeed); // Rơi xuống
-            }
-        }
+        LastPressedJumpTime = Data.jumpInputBufferTime;
     }
 
-
-
-
-    private bool IsGrounded()
+    public void OnJumpUpInput()
     {
-        return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
+        if (CanJumpCut() || CanWallJumpCut())
+            _isJumpCut = true;
     }
-    private bool IsTouchingWall()
+    #endregion
+
+    #region GENERAL METHODS
+    public void SetGravityScale(float scale)
     {
-        return Physics2D.OverlapCircle(wallCheck.position, wallCheckRadius, wallLayer);
+        RB.gravityScale = scale;
     }
-    private void Flip()
+    #endregion
+
+    //MOVEMENT METHODS
+    #region RUN METHODS
+    private void Run(float lerpAmount)
     {
-       
-        if (isWallGrabbing && IsTouchingWall())
-        {
-            isFacingRight = !isFacingRight;
-            Vector3 scale = transform.localScale;
-            scale.x *= -1;
-            transform.localScale = scale;
-       
-        }
+        
+        float targetSpeed = _moveInput.x * Data.runMaxSpeed;
+
+        targetSpeed = Mathf.Lerp(RB.velocity.x, targetSpeed, lerpAmount);
+
+        #region Calculate AccelRate
+        float accelRate;
+
+
+        if (LastOnGroundTime > 0)
+            accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? Data.runAccelAmount : Data.runDeccelAmount;
         else
+            accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? Data.runAccelAmount * Data.accelInAir : Data.runDeccelAmount * Data.deccelInAir;
+        #endregion
+
+        #region Add Bonus Jump Apex Acceleration
+
+        if ((IsJumping || IsWallJumping || _isJumpFalling) && Mathf.Abs(RB.velocity.y) < Data.jumpHangTimeThreshold)
         {
-            if (isFacingRight && hor < 0f || !isFacingRight && hor > 0f)
+            accelRate *= Data.jumpHangAccelerationMult;
+            targetSpeed *= Data.jumpHangMaxSpeedMult;
+        }
+        #endregion
+
+        #region Conserve Momentum
+
+        if (Data.doConserveMomentum && Mathf.Abs(RB.velocity.x) > Mathf.Abs(targetSpeed) && Mathf.Sign(RB.velocity.x) == Mathf.Sign(targetSpeed) && Mathf.Abs(targetSpeed) > 0.01f && LastOnGroundTime < 0)
+        {
+
+            accelRate = 0;
+        }
+        #endregion
+        if (Physics2D.OverlapCircle(_groundCheckPoint.position, 0.2f, _groundLayer) && !IsJumping && !attack )
+        {
+            if (Mathf.Abs(targetSpeed) < 0.01f && Mathf.Abs(RB.velocity.x) < 0.01f)
             {
-              
-                isFacingRight = !isFacingRight;
-                Vector3 localScale = transform.localScale;
-                localScale.x *= -1f;
-                transform.localScale = localScale;
+                // Nhân vật sẽ dừng lại.
+                ChangeAnim("idle");
+            }
+            else
+            {
+                ChangeAnim("run");
             }
         }
-    }
+        
 
     
+        float speedDif = targetSpeed - RB.velocity.x;
+
+
+        float movement = speedDif * accelRate;
+
+
+        RB.AddForce(movement * Vector2.right, ForceMode2D.Force);
+
+    }
+
+    private void Turn()
+    {
+        Vector3 scale = transform.localScale;
+        scale.x *= -1;
+        transform.localScale = scale;
+        IsFacingRight = !IsFacingRight;
+    }
+    #endregion
+
+    #region JUMP METHODS
+    private void Jump()
+    {
+
+        LastPressedJumpTime = 0;
+        LastOnGroundTime = 0;
+
+        #region Perform Jump
+
+        float force = Data.jumpForce;
+        if (RB.velocity.y < 0)
+            force -= RB.velocity.y;
+
+        RB.AddForce(Vector2.up * force, ForceMode2D.Impulse);
+        ChangeAnim("jump");
+        #endregion
+    }
+
+    private void WallJump(int dir)
+    {
+        //Đảm bảo chúng ta không thể gọi Wall Jump nhiều lần chỉ bằng một lần nhấn
+        LastPressedJumpTime = 0;
+        LastOnGroundTime = 0;
+        LastOnWallRightTime = 0;
+        LastOnWallLeftTime = 0;
+        
+        #region Perform Wall Jump
+        Vector2 force = new Vector2(Data.wallJumpForce.x, Data.wallJumpForce.y);
+        force.x *= dir; //áp dụng lực theo hướng ngược lại với tường
+
+        if (Mathf.Sign(RB.velocity.x) != Mathf.Sign(force.x))
+            force.x -= RB.velocity.x;
+
+        if (RB.velocity.y < 0) //kiểm tra xem người chơi có đang rơi không, nếu có, chúng tôi trừ đi vận tốc.y(lực đối trọng).Điều này đảm bảo người chơi luôn đạt được lực nhảy mong muốn hoặc lớn hơn
+            force.y -= RB.velocity.y;
+
+
+        RB.AddForce(force, ForceMode2D.Impulse);
+        #endregion
+    }
+    #endregion
+
+    #region OTHER MOVEMENT METHODS
+    private void Slide()
+    {
+        float speedDif = Data.slideSpeed - RB.velocity.y;
+        float movement = speedDif * Data.slideAccel;
+        movement = Mathf.Clamp(movement, -Mathf.Abs(speedDif) * (1 / Time.fixedDeltaTime), Mathf.Abs(speedDif) * (1 / Time.fixedDeltaTime));
+
+        RB.AddForce(movement * Vector2.up);
+    }
+    #endregion
+     private void onHurt(Vector2 attackDirection)
+    {
+        // Đẩy lùi player theo hướng ngược lại với đòn tấn công
+        Vector2 knockbackDirection = new Vector2(-attackDirection.normalized.x, 0); // Giữ nguyên chiều ngang, không thay đổi chiều dọc
+        RB.AddForce(knockbackDirection * knockbackForce, ForceMode2D.Impulse);
+    }
+
+    #region CHECK METHODS
+    public void CheckDirectionToFace(bool isMovingRight)
+    {
+        if (isMovingRight != IsFacingRight)
+            Turn();
+    }
+
+    private bool CanJump()
+    {
+        return LastOnGroundTime > 0 && !IsJumping;
+    }
+
+    private bool CanWallJump()
+    {
+        return LastPressedJumpTime > 0 && LastOnWallTime > 0 && LastOnGroundTime <= 0 && (!IsWallJumping ||
+             (LastOnWallRightTime > 0 && _lastWallJumpDir == 1) || (LastOnWallLeftTime > 0 && _lastWallJumpDir == -1));
+    }
+
+    private bool CanJumpCut()
+    {
+        return IsJumping && RB.velocity.y > 0;
+    }
+
+    private bool CanWallJumpCut()
+    {
+        return IsWallJumping && RB.velocity.y > 0;
+    }
+
+    public bool CanSlide()
+    {
+        if (LastOnWallTime > 0 && !IsJumping && !IsWallJumping && LastOnGroundTime <= 0)
+            return true;
+        else
+            return false;
+    }
+    #endregion
+
+
+    #region EDITOR METHODS
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireCube(_groundCheckPoint.position, _groundCheckSize);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireCube(_frontWallCheckPoint.position, _wallCheckSize);
+        Gizmos.DrawWireCube(_backWallCheckPoint.position, _wallCheckSize);
+    }
+    #endregion
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("EHitBox") || collision.CompareTag("arrow"))
+        {
+            if (!isParry)
+            {
+                OnHit(1);
+                if (collision.transform.position.x >= transform.position.x)
+                {
+                    KbFromR = true;
+                    Debug.Log("R");
+                }
+                else
+                {
+                    KbFromR = false;
+                    Debug.Log("L");
+                }
+
+                KbCounter = KbTotalTime;
+            }  
+        }
+    }
+
+    private void unActive()
+    {
+        isParry= false;
+        firesSpark.SetActive(false);
+    }
 
 }

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 4a4c02fba327351479d4b643da53ce59
+guid: 2f613175547939242b130047a55664c1
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -48,7 +48,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 20
+  spritePixelsToUnits: 50
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -123,148 +123,148 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: itch hurt 2_0
+      name: firepark_0
       rect:
         serializedVersion: 2
-        x: 20
-        y: 21
-        width: 16
-        height: 31
-      alignment: 9
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 49d838b7071bfb64b9979a45fd7bc00e
-      internalID: 1020819628
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: itch hurt 2_1
-      rect:
-        serializedVersion: 2
-        x: 99
-        y: 21
-        width: 26
-        height: 20
-      alignment: 9
-      pivot: {x: 0.5, y: 0.775}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 6beaf8c22f3a3dc4f8a3cba7bcc7ee03
-      internalID: 744325372
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: itch hurt 2_2
-      rect:
-        serializedVersion: 2
-        x: 179
-        y: 21
-        width: 26
-        height: 20
-      alignment: 9
-      pivot: {x: 0.5, y: 0.775}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 8eff1ca5717d8054ca3d9ae55b3f041e
-      internalID: 1218286150
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: itch hurt 2_3
-      rect:
-        serializedVersion: 2
-        x: 259
-        y: 21
-        width: 26
-        height: 20
-      alignment: 9
-      pivot: {x: 0.5, y: 0.775}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 34cb7e2984fb6bf40b304641b4ab74b3
-      internalID: -2051230340
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: itch hurt 2_4
-      rect:
-        serializedVersion: 2
-        x: 339
-        y: 21
-        width: 27
-        height: 22
-      alignment: 9
-      pivot: {x: 0.5, y: 0.70454544}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 4fe53666f1fd4df4097d046fb1cfe650
-      internalID: 1257761528
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: itch hurt 2_5
-      rect:
-        serializedVersion: 2
-        x: 419
-        y: 21
-        width: 23
-        height: 23
-      alignment: 9
-      pivot: {x: 0.5, y: 0.67391306}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 9e69e6a249e814649888afed04d16752
-      internalID: -717149516
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: itch hurt 2_6
-      rect:
-        serializedVersion: 2
-        x: 500
-        y: 21
-        width: 16
-        height: 31
+        x: 0
+        y: 88.5
+        width: 106.6
+        height: 88.5
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ccc92116dcc9bd141ad3b5610e500559
-      internalID: -1482547028
+      spriteID: 3a85d22f4cc42724d988d7dfedb373ef
+      internalID: 942057004
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: firepark_1
+      rect:
+        serializedVersion: 2
+        x: 106
+        y: 88.5
+        width: 106.6
+        height: 88.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e199437ec191e5f4e989e881f23e6a9d
+      internalID: -175997197
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: firepark_2
+      rect:
+        serializedVersion: 2
+        x: 212
+        y: 88.5
+        width: 106.6
+        height: 88.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dd8f62b39d658a14698372a60753cd6e
+      internalID: 1174425486
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: firepark_3
+      rect:
+        serializedVersion: 2
+        x: 318
+        y: 88.5
+        width: 106.6
+        height: 88.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6c9a07573f94a8641a25e853efcafd68
+      internalID: -58312858
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: firepark_4
+      rect:
+        serializedVersion: 2
+        x: 424
+        y: 88.5
+        width: 106.6
+        height: 88.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b05ad8d96f801b94a96cfb5f1e8fc5fb
+      internalID: -30045486
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: firepark_5
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0.5
+        width: 106.6
+        height: 88.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b0c4b8ed9c407954e80ef9ecaef5a7cd
+      internalID: 284316010
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: firepark_6
+      rect:
+        serializedVersion: 2
+        x: 106
+        y: 0.5
+        width: 106.6
+        height: 88.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3ef0499ffb4b04b47979c862f1dac564
+      internalID: -811845348
       vertices: []
       indices: 
       edges: []
@@ -280,13 +280,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      itch hurt 2_0: 1020819628
-      itch hurt 2_1: 744325372
-      itch hurt 2_2: 1218286150
-      itch hurt 2_3: -2051230340
-      itch hurt 2_4: 1257761528
-      itch hurt 2_5: -717149516
-      itch hurt 2_6: -1482547028
+      firepark_0: 942057004
+      firepark_1: -175997197
+      firepark_2: 1174425486
+      firepark_3: -58312858
+      firepark_4: -30045486
+      firepark_5: 284316010
+      firepark_6: -811845348
+      firepark_7: 2140986872
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

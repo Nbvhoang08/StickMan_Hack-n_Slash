@@ -7,19 +7,20 @@ public class Boss : Enemies
 {
  
     public GameObject thunderPrefab;
-
+    public bool isAttack;
+    
     protected override void Start()
     {
         base.Start();
-        changeState(new IdleState());
+        changeState(new PatrolState());
         
     }
-
+   
     
     public override void OnInit()
     {
         base.OnInit();
-      
+        isAttack = false;
     }
 
     public override void DesSpawn()
@@ -36,12 +37,31 @@ public class Boss : Enemies
     public override void Atk()
     {
         base.Atk();
+        ChangeAnim("atk");
+        hitbox.SetActive(true);
+        Invoke(nameof(ResetAttack), 0.5f);
+        isAttack = true;
     }
+
     public override void Cast()
     {
         base.Cast();
         ChangeAnim("cast");
         StartCoroutine(Spell());
+    }
+    public override void StopMoving()
+    {
+        base.StopMoving();
+        if (!isAttack)
+        {
+            ChangeAnim("idle");
+        }
+        
+    }
+    public override void Moving()
+    {
+        base.Moving();
+        ChangeAnim("run");
     }
 
 
@@ -74,8 +94,9 @@ public class Boss : Enemies
         ChangeAnim("done");
     }
 
+   
 
-    
+
 }
    
 

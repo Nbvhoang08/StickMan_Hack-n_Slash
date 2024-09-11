@@ -16,7 +16,7 @@ public class PatrolState : IState
     public void onExcute(Enemies enemies)
     {
         timer += Time.deltaTime;
-        if (enemies is Boss) // neu la boss
+        if (enemies is Boss || enemies is Orc) // neu la boss haoc orc
         {
             if (enemies.Target != null)
             {
@@ -50,16 +50,7 @@ public class PatrolState : IState
             if (enemies.Target != null)
             {
                 enemies.ChangedDirection(enemies.Target.transform.position.x > enemies.transform.position.x);
-                if (enemies.targetInRange())
-                {
-                    enemies.changeState(new AtkState()); // co muc tieu , trong tam danh  -> can chien
-                }
-                else
-                {
-                    enemies.changeState(new CastState()); // co muc tieu , ngoai tam danh -> danh xa
-
-                }
-
+                enemies.changeState(new AtkState()); // co muc tieu , trong tam danh  -> can chien
             }
             else
             {
@@ -74,14 +65,6 @@ public class PatrolState : IState
                 }
             }
         }
-
-
-
-
-
-
-        
-        
     }
 
     public void onExit(Enemies enemies)

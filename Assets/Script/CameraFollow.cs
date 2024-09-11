@@ -11,7 +11,7 @@ public class CameraFollow : MonoBehaviour
     void FixedUpdate()
     {
         // Vị trí mong muốn của camera
-        Vector3 desiredPosition = target.position + offset;
+        Vector3 desiredPosition = new Vector3(transform.position.x ,target.position.y + offset.y, transform.position.z);
 
         // Dùng Lerp để làm mượt chuyển động
         Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);

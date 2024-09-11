@@ -8,17 +8,18 @@ public class Character : MonoBehaviour
     // Start is called before the first frame update
     [SerializeField] private Animator anim;
     public String currentAnimName;
-    private float hp;
-    private bool IsDead => hp <= 0;
+    public float hp;
+    public bool IsDead => hp <= 0;
 
-    private void Start()
+    protected virtual void Start()
     {
         OnInit();
     }
 
     public virtual void OnInit()
     {
-        hp = 10;
+        hp = 4;
+        anim = GetComponent<Animator>();    
     }
 
     public virtual void DesSpawn()

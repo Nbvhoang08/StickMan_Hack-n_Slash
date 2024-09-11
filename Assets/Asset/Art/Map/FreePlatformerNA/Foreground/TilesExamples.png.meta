@@ -882,8 +882,8 @@ TextureImporter:
       name: TilesExamples_37
       rect:
         serializedVersion: 2
-        x: 421
-        y: 130
+        x: 419
+        y: 127
         width: 16
         height: 16
       alignment: 9
@@ -1281,8 +1281,8 @@ TextureImporter:
       name: TilesExamples_56
       rect:
         serializedVersion: 2
-        x: 419
-        y: 150
+        x: 418
+        y: 147
         width: 16
         height: 16
       alignment: 0

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 4a4c02fba327351479d4b643da53ce59
+guid: 63918a14f7e9c504ea9db6a07d695bf9
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -48,7 +48,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 20
+  spritePixelsToUnits: 50
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -123,13 +123,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: itch hurt 2_0
+      name: power-fx-effect_0
       rect:
         serializedVersion: 2
-        x: 20
-        y: 21
-        width: 16
-        height: 31
+        x: 4
+        y: 101
+        width: 72
+        height: 40
       alignment: 9
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -137,134 +137,197 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 49d838b7071bfb64b9979a45fd7bc00e
-      internalID: 1020819628
+      spriteID: 57c8a1a13a11b5244b0c543ab2131115
+      internalID: -1222205779
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: itch hurt 2_1
+      name: power-fx-effect_1
       rect:
         serializedVersion: 2
-        x: 99
-        y: 21
-        width: 26
-        height: 20
+        x: 105
+        y: 101
+        width: 70
+        height: 46
       alignment: 9
-      pivot: {x: 0.5, y: 0.775}
+      pivot: {x: 0.5, y: 0.4347826}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6beaf8c22f3a3dc4f8a3cba7bcc7ee03
-      internalID: 744325372
+      spriteID: 1340a194f35554542a0a5ee80923f190
+      internalID: -1045896568
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: itch hurt 2_2
+      name: power-fx-effect_2
       rect:
         serializedVersion: 2
-        x: 179
-        y: 21
-        width: 26
-        height: 20
+        x: 201
+        y: 100
+        width: 78
+        height: 47
       alignment: 9
-      pivot: {x: 0.5, y: 0.775}
+      pivot: {x: 0.5, y: 0.42553192}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8eff1ca5717d8054ca3d9ae55b3f041e
-      internalID: 1218286150
+      spriteID: 771cfd59e93d1a7469211d0669bdc485
+      internalID: -698163891
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: itch hurt 2_3
+      name: power-fx-effect_3
       rect:
         serializedVersion: 2
-        x: 259
-        y: 21
-        width: 26
-        height: 20
+        x: 303
+        y: 101
+        width: 78
+        height: 52
       alignment: 9
-      pivot: {x: 0.5, y: 0.775}
+      pivot: {x: 0.5, y: 0.3846154}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 34cb7e2984fb6bf40b304641b4ab74b3
-      internalID: -2051230340
+      spriteID: 8ee4d9787c6c1e04c8453a7f311bc3bd
+      internalID: -941209072
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: itch hurt 2_4
+      name: power-fx-effect_4
       rect:
         serializedVersion: 2
-        x: 339
-        y: 21
-        width: 27
-        height: 22
+        x: 403
+        y: 100
+        width: 75
+        height: 45
       alignment: 9
-      pivot: {x: 0.5, y: 0.70454544}
+      pivot: {x: 0.5, y: 0.44444445}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4fe53666f1fd4df4097d046fb1cfe650
-      internalID: 1257761528
+      spriteID: 4252912d54f7df14c8208bd3303591ea
+      internalID: -830729826
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: itch hurt 2_5
+      name: power-fx-effect_5
       rect:
         serializedVersion: 2
-        x: 419
-        y: 21
-        width: 23
-        height: 23
+        x: 0
+        y: 4
+        width: 83
+        height: 65
       alignment: 9
-      pivot: {x: 0.5, y: 0.67391306}
+      pivot: {x: 0.5, y: 0.30769232}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9e69e6a249e814649888afed04d16752
-      internalID: -717149516
+      spriteID: d13700beb4a4a2948ae262d21e9a7189
+      internalID: -1068326949
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: itch hurt 2_6
+      name: power-fx-effect_8
       rect:
         serializedVersion: 2
-        x: 500
-        y: 21
-        width: 16
-        height: 31
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 302
+        y: 2
+        width: 79
+        height: 60
+      alignment: 9
+      pivot: {x: 0.5, y: 0.33333334}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ccc92116dcc9bd141ad3b5610e500559
-      internalID: -1482547028
+      spriteID: 5797c777f27546e4abc87f1b69317cb0
+      internalID: 1539861978
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: power-fx-effect_9
+      rect:
+        serializedVersion: 2
+        x: 403
+        y: 3
+        width: 75
+        height: 59
+      alignment: 9
+      pivot: {x: 0.5, y: 0.33898306}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 80dbc84d68d28c44ea346ae025f0ce78
+      internalID: -2026905590
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: power-fx-effect_10
+      rect:
+        serializedVersion: 2
+        x: 101
+        y: 3
+        width: 79
+        height: 67
+      alignment: 9
+      pivot: {x: 0.5, y: 0.29850745}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f6d65429630ebe546911bd94bedb4fbd
+      internalID: 2132727600
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: power-fx-effect_12
+      rect:
+        serializedVersion: 2
+        x: 202
+        y: 3
+        width: 79
+        height: 60
+      alignment: 9
+      pivot: {x: 0.5, y: 0.33333334}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f001c29cf1e4b454c99e3283027dd508
+      internalID: 456710992
       vertices: []
       indices: 
       edges: []
@@ -280,13 +343,19 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      itch hurt 2_0: 1020819628
-      itch hurt 2_1: 744325372
-      itch hurt 2_2: 1218286150
-      itch hurt 2_3: -2051230340
-      itch hurt 2_4: 1257761528
-      itch hurt 2_5: -717149516
-      itch hurt 2_6: -1482547028
+      power-fx-effect_0: -1222205779
+      power-fx-effect_1: -1045896568
+      power-fx-effect_10: 2132727600
+      power-fx-effect_11: 114528539
+      power-fx-effect_12: 456710992
+      power-fx-effect_2: -698163891
+      power-fx-effect_3: -941209072
+      power-fx-effect_4: -830729826
+      power-fx-effect_5: -1068326949
+      power-fx-effect_6: -1811235020
+      power-fx-effect_7: 222465011
+      power-fx-effect_8: 1539861978
+      power-fx-effect_9: -2026905590
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

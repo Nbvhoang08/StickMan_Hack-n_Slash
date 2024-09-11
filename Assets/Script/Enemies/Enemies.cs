@@ -12,18 +12,18 @@ public class Enemies : MonoBehaviour
     public IState currState;
     public Rigidbody2D rb;
     public  float moveSpeed;
-    public float ActackRange;
+    public float AttackRange;
     public Animator anim;
     public String currentAnimName;
     public float moveDistance = 2f; // Khoảng cách cố định 
-    private Player target;
+    public   Player target;
     public Player Target => target;
     private Vector3 startPosition;
     public bool IsRight;
     private bool isChangingDirection = false; // Biến này để kiểm tra xem đã đổi hướng hay chưa
-    private float hp;
+    public float hp;
     private bool IsDead => hp <= 0;
-    
+    public GameObject hitbox;
     
     protected virtual void Start()
     {
@@ -34,16 +34,17 @@ public class Enemies : MonoBehaviour
 
     public void Update()
     {
-        if (currState != null)
+        if (currState != null && !IsDead)
         {
             currState.onExcute(this);
         }
+        
     }
 
     public virtual void OnInit()
     {
         hp = 10;
-       
+        hitbox.SetActive(false);
     }
 
     public virtual void DesSpawn()
@@ -52,7 +53,7 @@ public class Enemies : MonoBehaviour
     }
     protected virtual void OnDeath()
     {
-
+        Debug.Log("die");
     }
    
   
@@ -64,6 +65,7 @@ public class Enemies : MonoBehaviour
             currentAnimName = animName;
             anim.SetTrigger(animName);
         }
+        
     }
 
 
@@ -115,7 +117,7 @@ public class Enemies : MonoBehaviour
 
     public virtual void Moving() 
     {
-        ChangeAnim("run");
+        
         rb.velocity = transform.right * moveSpeed;
         float distanceTraveled = Vector3.Distance(startPosition, transform.position);
 
@@ -144,17 +146,19 @@ public class Enemies : MonoBehaviour
 
     }
 
-    public void StopMoving() 
+    public virtual void StopMoving() 
     {
-        ChangeAnim("idle");
         rb.velocity = Vector2.zero;
       
     }
-
+    public void ResetAttack()
+    {
+        hitbox.SetActive(false);
+    }
    
     public virtual void Atk()
     {
-        ChangeAnim("atk");
+      
        
     }
    
@@ -173,12 +177,28 @@ public class Enemies : MonoBehaviour
 
     public bool targetInRange()
     {
-        if(target != null && Vector2.Distance(target.transform.position, transform.position) <= ActackRange)
+        if(target != null && Vector2.Distance(target.transform.position, transform.position) <= AttackRange)
             return true;
         else
             return false;
     }
-    
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("hitbox"))
+        {
+            OnHit(collision.GetComponent<hitbox>().damage);
+            ChangeAnim("hurt");
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        // Màu sắc của Gizmo khi vẽ phạm vi tấn công
+        Gizmos.color = Color.red;
+
+        // Vẽ một vòng tròn để thể hiện phạm vi tấn công
+        Gizmos.DrawWireSphere(transform.position, AttackRange);
+    }
 
 
 
