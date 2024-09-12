@@ -43,7 +43,6 @@ public class Player : Character
     [SerializeField] private Vector2 _wallCheckSize = new Vector2(0.5f, 1f);
     [Header("Layers & Tags")]
     [SerializeField] private LayerMask _groundLayer;
-    #endregion
     public float knockbackForce;
     public static Player Instance;
     public GameObject hitbox;
@@ -55,6 +54,10 @@ public class Player : Character
     public float KbTotalTime;
     public float KbCounter;
     public Transform StartPos;
+    private float _fallSpeedYDampingChangeThrehold;
+
+    #endregion
+
 
 
     private void Awake()
@@ -75,6 +78,7 @@ public class Player : Character
         base.Start();
         SetGravityScale(Data.gravityScale);
         IsFacingRight = true;
+        _fallSpeedYDampingChangeThrehold = CameraController.Instance._fallSpeedYDampingChangeThreshold;
     }
 
     public override void OnInit()
@@ -270,13 +274,13 @@ public class Player : Character
             transform.position =StartPos.position;
             OnInit();
         }
-        
-        
+       
    
     }
     void FixedUpdate()
     {
-        if(!IsDead)
+       
+        if (!IsDead)
         {
             if(KbCounter <= 0)
             {
@@ -308,7 +312,19 @@ public class Player : Character
             
 
         }
-
+        if (RB.velocity.y < _fallSpeedYDampingChangeThrehold && !CameraController.Instance.IsLerpingYDamping && !CameraController.Instance.LerpedFromPlayerFalling)
+        {
+            CameraController.Instance.LerpYDamping(true);
+        
+        }
+        if (RB.velocity.y >= 0f && !CameraController.Instance.IsLerpingYDamping && CameraController.Instance.LerpedFromPlayerFalling)
+        {
+            CameraController.Instance.LerpedFromPlayerFalling = false;
+          
+            CameraController.Instance.LerpYDamping(false);
+      
+        }
+       
     }
     private void ATK()
     {
