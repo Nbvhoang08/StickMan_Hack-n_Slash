@@ -19,6 +19,11 @@ public class hitbox : MonoBehaviour
         {
             player.isParry = true;
         }
+        if (collision.CompareTag("enemy")) 
+        {
+            player.Mana += player.manaGain; 
+        
+        }
     }
 
 }

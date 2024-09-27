@@ -34,18 +34,20 @@ public class Soldier : Enemies
     public override void DesSpawn()
     {
         base.DesSpawn();
+        Destroy(this.gameObject);
     }
 
     protected override void OnDeath()
     {
         base.OnDeath();
-        ChangeAnim("die");
+       
+
 
     }
     public override void Atk()
     {
         base.Atk();
-        if (!isAttacking)
+        if (!isAttacking && !hurt)
         {
             StartCoroutine(Combo());
         }
@@ -104,22 +106,25 @@ public class Soldier : Enemies
     IEnumerator Combo()
     {
         isAttacking = true;
-
+        hitbox.SetActive(true);
         // Đòn tấn công đầu tiên
         DashTowardsPlayer(Target.transform, 2f);
         ChangeAnim("atk");
         yield return new WaitForSeconds(0.5f);
 
         // Đòn tấn công thứ hai
-        DashTowardsPlayer(Target.transform, 4f); ////
+        DashTowardsPlayer(Target.transform, 2f); ////
         ChangeAnim("atk1");
         yield return new WaitForSeconds(1f);
-
-        isAttacking = false; // Reset trạng thái tấn công
-        /*ChangeAnim("idle");*/
+        ResetAttack();
 
     }
-
+    public override void ResetAttack()
+    {
+        base.ResetAttack();
+        isAttacking = false;
+        ChangeAnim("idle");
+    }
     void DashTowardsPlayer(Transform playerTransform, float dashDistance)
     {
         // Tính hướng từ enemy tới player
@@ -129,7 +134,6 @@ public class Soldier : Enemies
         // Di chuyển enemy về phía player một khoảng dashDistance
         transform.position += dashDirection * dashDistance;
     }
-
 
 
 }

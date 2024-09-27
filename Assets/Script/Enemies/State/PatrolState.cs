@@ -5,11 +5,11 @@ using UnityEngine;
 public class PatrolState : IState
 {
     public float timer;
-    public float radTime;
+    public int radTime;
     public void onEnter(Enemies enemies)
     {
         timer = 0;
-        radTime = Random.Range(1,2);
+        radTime = Random.Range(1,3);
        
     }
 

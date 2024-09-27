@@ -19,6 +19,7 @@ public class AtkState : IState
                 {
                     enemies.Atk(); // trong tam danh thi can chien  
                     enemies.StopMoving();
+             
                    
                 }
                 
@@ -45,7 +46,7 @@ public class AtkState : IState
                 }
                 else
                 {
-                    enemies.Moving(); // ngoai tam thi ban cung
+                    enemies.Moving(); 
                 }
             }else if(enemies is Orc)
             {
@@ -67,16 +68,16 @@ public class AtkState : IState
             {
                 if (enemies.targetInRange())
                 {
-                    if(timer >= 1)
+                    if(timer >= 2)
                     {
                         enemies.ChangedDirection(enemies.Target.transform.position.x > enemies.transform.position.x);
-                        enemies.Atk(); // ngoai tam thi ban cung\
+                        enemies.Atk();
                         timer = 0f;
                     }
                 }
                 else
                 {
-                    if (timer >= 1)
+                    if (timer >= 3)
                     {
                         enemies.Cast(); // ngoai tam thi ban cung\
                         timer = 0f;
@@ -112,7 +113,11 @@ public class AtkState : IState
                 if (enemies.targetInRange())
                 {
 
-                    enemies.Atk();
+                    if (timer >= 1f)
+                    {
+                        enemies.Atk(); // trong tam danh thi can chien
+                        timer = 0f;
+                    }
                 }
                 else
                 {
@@ -126,7 +131,7 @@ public class AtkState : IState
         }
         else
         {
-            if (timer >= 3f)
+            if (timer >= 5f)
             {
                 enemies.changeState(new PatrolState());
 

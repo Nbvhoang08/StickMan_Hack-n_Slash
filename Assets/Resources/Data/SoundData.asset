@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 703d89744b1c91e40a4c7c3ac2b7e3e8, type: 3}
+  m_Name: SoundData
+  m_EditorClassIdentifier: 
+  backGroundMusic:
+  - {fileID: 8300000, guid: 438a051eb6d2e49449b0302dd27edb55, type: 3}
+  - {fileID: 8300000, guid: e7d772d241a2c00419e87c349c580081, type: 3}
+  sfx: []
+  playSound: []
+  audioMixer: {fileID: 24100000, guid: 732a068d46a6ffc49bad7c6151969ee1, type: 2}

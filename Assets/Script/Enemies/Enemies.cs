@@ -1,9 +1,7 @@
-﻿using System;
+﻿using Cinemachine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Mathematics;
-using UnityEditor;
-using UnityEditor.Tilemaps;
 using UnityEngine;
 
 public class Enemies : MonoBehaviour
@@ -22,9 +20,12 @@ public class Enemies : MonoBehaviour
     public bool IsRight;
     private bool isChangingDirection = false; // Biến này để kiểm tra xem đã đổi hướng hay chưa
     public float hp;
+    public bool hurt;
+
     private bool IsDead => hp <= 0;
     public GameObject hitbox;
-    
+    [SerializeField] private bool isFrozen;
+    public CinemachineImpulseSource _imPulse; 
     protected virtual void Start()
     {
          rb = GetComponent<Rigidbody2D>();
@@ -34,9 +35,13 @@ public class Enemies : MonoBehaviour
 
     public void Update()
     {
-        if (currState != null && !IsDead)
+        if (currState != null && !IsDead && !isFrozen)
         {
             currState.onExcute(this);
+        }
+       if(IsDead)
+        {
+            OnDeath();
         }
         
     }
@@ -45,15 +50,20 @@ public class Enemies : MonoBehaviour
     {
         hp = 10;
         hitbox.SetActive(false);
+        hurt = false;
+        isFrozen = false;
+        _imPulse = GetComponent<CinemachineImpulseSource>();
     }
 
     public virtual void DesSpawn()
     {
 
+        Destroy(this.gameObject);
     }
     protected virtual void OnDeath()
     {
-        Debug.Log("die");
+        changeState(null);
+        ChangeAnim("die");
     }
    
   
@@ -75,11 +85,16 @@ public class Enemies : MonoBehaviour
     {
         if (!IsDead)
         {
+            Hurt();
             hp -= damage;
             if (IsDead)
             {
                 OnDeath();
             }
+        }
+        else
+        {
+            ChangeAnim("die");
         }
     }
 
@@ -151,7 +166,7 @@ public class Enemies : MonoBehaviour
         rb.velocity = Vector2.zero;
       
     }
-    public void ResetAttack()
+    public virtual void ResetAttack()
     {
         hitbox.SetActive(false);
     }
@@ -166,6 +181,34 @@ public class Enemies : MonoBehaviour
     {
        
     }
+    public virtual void Hurt()
+    {
+        hurt = true;
+        ChangeAnim("hurt");
+
+    }
+    public void Freeze()
+    {
+        // Dừng Animator (đóng băng animation hiện tại)
+        anim.speed = 0;
+        isFrozen = true;
+        StartCoroutine(unFreeze());
+    }
+
+    public void Unfreeze()
+    {
+        // Tiếp tục Animator
+        anim.speed = 1;
+        isFrozen = false;
+    }
+    IEnumerator unFreeze() 
+    {
+        yield return new WaitForSeconds(2f);
+        Unfreeze();
+        yield return new WaitForSeconds(0.5f);
+        ResetState();
+    }
+
 
     public void ChangedDirection(bool IsRight)
     {
@@ -187,8 +230,18 @@ public class Enemies : MonoBehaviour
         if (collision.CompareTag("hitbox"))
         {
             OnHit(collision.GetComponent<hitbox>().damage);
-            ChangeAnim("hurt");
+            
+        }if (collision.CompareTag("playerBullet"))
+        {
+            Freeze();
+            
         }
+    }
+    public void ResetState()
+    {
+/*        changeState(new IdleState());*/
+        hurt = false;
+       
     }
 
     private void OnDrawGizmosSelected()
@@ -200,6 +253,5 @@ public class Enemies : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, AttackRange);
     }
 
-
-
+   
 }

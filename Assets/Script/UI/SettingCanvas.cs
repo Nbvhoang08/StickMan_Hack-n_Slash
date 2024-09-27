@@ -5,14 +5,9 @@ using UnityEngine;
 public class SettingCanvas : UICanvas
 {
     // Start is called before the first frame update
-    void Start()
+    public void BackBtn()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        UIManager.Instance.OpenUI<HomeCanvas>();
+        this.gameObject.SetActive(false);
     }
 }

@@ -8,17 +8,31 @@ public class Character : MonoBehaviour
     // Start is called before the first frame update
     [SerializeField] private Animator anim;
     public String currentAnimName;
-    public float hp;
+   
+    public delegate void OnHealthChange();
+    [HideInInspector] public OnHealthChange onHealthChangeCallBack;
+    public int maxHp=4;
     public bool IsDead => hp <= 0;
+
+    public int hp;
+    public virtual void Awake()
+    {
+        OnInit();
+        
+    }
 
     protected virtual void Start()
     {
-        OnInit();
+        
     }
 
     public virtual void OnInit()
     {
-        hp = 4;
+        hp = maxHp;
+        if (onHealthChangeCallBack != null)
+        {
+            onHealthChangeCallBack.Invoke();
+        }
         anim = GetComponent<Animator>();    
     }
 
@@ -47,12 +61,16 @@ public class Character : MonoBehaviour
     
 
 
-    public void OnHit(float damage)
+    public void OnHit(int damage)
     {
         if (!IsDead)
         {
             hp -= damage;
-            if(IsDead)
+            if (onHealthChangeCallBack != null)
+            {
+                onHealthChangeCallBack.Invoke();
+            }
+            if (IsDead)
             {
                 OnDeath();
             }

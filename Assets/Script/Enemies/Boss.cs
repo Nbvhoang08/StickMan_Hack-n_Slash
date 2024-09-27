@@ -26,22 +26,37 @@ public class Boss : Enemies
     public override void DesSpawn()
     {
         base.DesSpawn();
+        Destroy(this.gameObject);
     }
 
     protected override void OnDeath()
     {
         base.OnDeath();
-        ChangeAnim("die");
+
+        
 
     }
     public override void Atk()
     {
         base.Atk();
-        ChangeAnim("atk");
-        hitbox.SetActive(true);
-        Invoke(nameof(ResetAttack), 0.5f);
         isAttack = true;
+        if (isAttack)
+        {
+            ChangeAnim("atk");
+            hitbox.SetActive(true);
+            Invoke(nameof(ResetAttack), 0.5f);
+          
+        }
+       
+        
     }
+    public override void ResetAttack()
+    {
+        base.ResetAttack();
+        isAttack = false;
+        ChangeAnim("idle");
+    }
+
 
     public override void Cast()
     {
@@ -62,6 +77,7 @@ public class Boss : Enemies
     {
         base.Moving();
         ChangeAnim("run");
+
     }
 
 

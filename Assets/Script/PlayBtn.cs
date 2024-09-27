@@ -3,23 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Cinemachine;
 
 public class PlayBtn : MonoBehaviour
 {
-    // Start is called before the first frame update
-    public string sceneName = "GamePlay";
-
-    void Start()
+   private CinemachineImpulseSource _ImpulseSource;
+    private void Start()
     {
-        // Tìm nút và gắn sự kiện OnClick
-        Button playButton = GetComponent<Button>();
-        playButton.onClick.AddListener(OnPlayButtonClicked);
+        
+        _ImpulseSource = GetComponent<CinemachineImpulseSource>();
+
     }
-
-    // Hàm sẽ được gọi khi nhấn nút Play
-    void OnPlayButtonClicked()
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        // Chuyển đến cảnh khác (ở đây là sceneName)
-        SceneManager.LoadScene(sceneName);
+        if (collision.CompareTag("hitbox"))
+        {
+            ScreenShakeManager.Instance.CameraShake(_ImpulseSource);
+        }
     }
 }

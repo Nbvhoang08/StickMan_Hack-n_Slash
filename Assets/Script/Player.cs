@@ -1,8 +1,12 @@
-﻿using System;
+﻿using Cinemachine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.EventSystems.EventTrigger;
+using UnityEngine.UI;
+using UnityEngine.InputSystem;
+
 
 public class Player : Character
 {
@@ -43,25 +47,46 @@ public class Player : Character
     [SerializeField] private Vector2 _wallCheckSize = new Vector2(0.5f, 1f);
     [Header("Layers & Tags")]
     [SerializeField] private LayerMask _groundLayer;
+    [SerializeField] private LayerMask _waterLayer;
     public float knockbackForce;
+    public float shootForce;
     public static Player Instance;
     public GameObject hitbox;
     public GameObject firesSpark;
+    public GameObject Apple;
     public bool attack = false;
     public bool isMoing = false;
     public bool isParry = false;
     public bool KbFromR = false;
+    public bool isHurt = false;
+    public bool healing = false;
+
+    public float healTimer;
+    public float timeToHeal;
+
     public float KbTotalTime;
     public float KbCounter;
+    
     public Transform StartPos;
     private float _fallSpeedYDampingChangeThrehold;
+    private CinemachineImpulseSource _imPulse;
+    [Space(5)]
+   
+    [Header("Mana Setting")]
+    public float mana;
+    [SerializeField] float manaDrainSpeed;
+    public float manaGain;
+
+    [SerializeField] public  Image manaStorage;
+
 
     #endregion
 
 
 
-    private void Awake()
+    public override void Awake()
     {
+        base.Awake();
         if (Instance == null)
         {
             Instance = this;
@@ -72,6 +97,7 @@ public class Player : Character
             Destroy(gameObject);
         }
           RB = GetComponent<Rigidbody2D>();
+ 
     }
     protected override void Start()
     {
@@ -79,6 +105,8 @@ public class Player : Character
         SetGravityScale(Data.gravityScale);
         IsFacingRight = true;
         _fallSpeedYDampingChangeThrehold = CameraController.Instance._fallSpeedYDampingChangeThreshold;
+        _imPulse = GetComponent<CinemachineImpulseSource>();
+        
     }
 
     public override void OnInit()
@@ -87,8 +115,13 @@ public class Player : Character
         attack = false;
         isParry = false;
         hitbox.SetActive(false);
-       
-
+        Mana = mana;
+        transform.position = StartPos.position;
+        if(manaStorage != null)
+        {
+            manaStorage.fillAmount = Mana;
+        }
+        
     }
 
     public override void DesSpawn()
@@ -98,6 +131,8 @@ public class Player : Character
     protected override void OnDeath()
     {
         base.OnDeath();
+        ChangeAnim("die");
+        
     }
 
     private void Update()
@@ -117,6 +152,8 @@ public class Player : Character
             {
                 firesSpark.SetActive(false);
             }
+            ATK();
+            Heal();
             #region TIMERS
             LastOnGroundTime -= Time.deltaTime;
             LastOnWallTime -= Time.deltaTime;
@@ -144,6 +181,7 @@ public class Player : Character
             }
             #endregion
 
+
             #region COLLISION CHECKS
             if (!IsJumping)
             {
@@ -152,28 +190,9 @@ public class Player : Character
                 {
                     LastOnGroundTime = Data.coyoteTime; //nếu vậy đặt lastGrounded thành coyoteTime
                 }
-
-                /*     //Right Wall Check
-                     if (((Physics2D.OverlapBox(_frontWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && IsFacingRight)
-                             || (Physics2D.OverlapBox(_backWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && !IsFacingRight)) && !IsWallJumping)
-                     {
-                         LastOnWallRightTime = Data.coyoteTime;
-
-
-                     }
-
-                     //Right Wall Check
-                     if (((Physics2D.OverlapBox(_frontWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && !IsFacingRight)
-                         || (Physics2D.OverlapBox(_backWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && IsFacingRight)) && !IsWallJumping) 
-                     {
-                         LastOnWallLeftTime = Data.coyoteTime;
-                     }
-
-
-                     //Cần kiểm tra hai lần cho cả tường bên trái và bên phải vì bất cứ khi nào vở kịch xoay tường, các điểm kiểm tra sẽ đổi bên
-                     LastOnWallTime = Mathf.Max(LastOnWallLeftTime, LastOnWallRightTime);*/
             }
             #endregion
+
 
             #region JUMP CHECKS
             if (IsJumping && RB.velocity.y < 0)
@@ -266,15 +285,14 @@ public class Player : Character
                 SetGravityScale(Data.gravityScale);
             }
             #endregion
-
-            ATK();
+           
         }
         else
         {
-            transform.position =StartPos.position;
-            OnInit();
+            OnDeath();
+  
         }
-       
+  
    
     }
     void FixedUpdate()
@@ -282,7 +300,8 @@ public class Player : Character
        
         if (!IsDead)
         {
-            if(KbCounter <= 0)
+            
+            if (KbCounter <= 0)
             {
                 //Handle Run
                 if (IsWallJumping)
@@ -309,8 +328,10 @@ public class Player : Character
                 }
                 KbCounter -= Time.fixedDeltaTime;
             }
-            
-
+        }
+        else
+        {
+            KbCounter = 0;
         }
         if (RB.velocity.y < _fallSpeedYDampingChangeThrehold && !CameraController.Instance.IsLerpingYDamping && !CameraController.Instance.LerpedFromPlayerFalling)
         {
@@ -328,26 +349,94 @@ public class Player : Character
     }
     private void ATK()
     {
-        if (attack)
+       
+        if (!isHurt && !attack &&!IsJumping)
         {
-            ChangeAnim("atk");
-        }
+           
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                ChangeAnim("atk");
+                attack = true;
+                hitbox.SetActive(true);
+            }
+            if(Input.GetKeyDown(KeyCode.E))
+            {
+                ChangeAnim("throw");
+                attack = true;
+            }
+        }   
+    }
+    public void ShockWave()
+    {
+        
+        Debug.Log("shockWave");
+    }
+    void Heal()
+    {
+       
+        if(Input.GetKey(KeyCode.R) && hp< maxHp && Mana >0 &&!isHurt && !isMoing&& !attack&& !IsJumping) 
+        {
       
-        if (Input.GetKey(KeyCode.Q))
-        {
-            ChangeAnim("atk");
-            attack = true;
-            hitbox.SetActive(true);
+            healTimer += Time.deltaTime;
+            healing = true;
+            ChangeAnim("healing");
+            if (healTimer >= timeToHeal )
+            {       
+                hp +=1;
+                healTimer = 0;
+                onHealthChangeCallBack();
+                VFXManager.Instance.CallShockWave();
+                ScreenShakeManager.Instance.CameraShake(_imPulse);
+            }
+           
+            // drain mana
+            Mana -= Time.deltaTime*manaDrainSpeed;
         }
-        else if (Input.GetKeyUp(KeyCode.Q)) // Chỉ thay đổi animation về idle nếu đang ở trạng thái tấn công
+        else
         {
-            attack = false;
-            hitbox.SetActive(false);
-
+            healing =false;
+            healTimer = 0;
+            
+          
         }
     }
-  
-  
+
+
+    public void Throw()
+    {
+        if(Mana > 0)
+        {
+            VFXManager.Instance.CallShockWave();
+            ScreenShakeManager.Instance.CameraShake(_imPulse);
+            // Tạo ra mũi tên tại vị trí shootPoint
+            GameObject apple = Instantiate(Apple, hitbox.transform.position, Quaternion.identity);
+            Vector2 direction;
+            // Lấy hướng từ vị trí bắn tới vị trí của người chơi
+            if (IsFacingRight)
+            {
+                direction = Vector2.right;
+            }
+            else
+            {
+                direction = Vector2.left;
+            }
+            /*Mana -= 0.25f;*/
+            // Gán lực cho mũi tên để bắn nó về phía người chơi
+            Rigidbody2D rb = apple.GetComponent<Rigidbody2D>();
+            rb.AddForce(direction * shootForce, ForceMode2D.Impulse);
+            Mana -= 0.1f;
+        }
+       
+       
+    }
+    public void ResetState()
+    {
+        attack = false;
+        isHurt  = false;
+        hitbox.SetActive(false);
+    }
+
+
     #region INPUT CALLBACKS
     //Methods which whandle input detected in Update()
     public void OnJumpInput()
@@ -405,22 +494,40 @@ public class Player : Character
             accelRate = 0;
         }
         #endregion
-        if (Physics2D.OverlapCircle(_groundCheckPoint.position, 0.2f, _groundLayer) && !IsJumping && !attack )
+        if (Physics2D.OverlapCircle(_groundCheckPoint.position, 0.2f, _groundLayer) && !IsJumping && !attack)
         {
-            if (Mathf.Abs(targetSpeed) < 0.01f && Mathf.Abs(RB.velocity.x) < 0.01f)
+            transform.rotation = Quaternion.Euler(0, 0, 0);
+            if (Mathf.Abs(targetSpeed) < 0.01f && Mathf.Abs(RB.velocity.x) < 0.01f )
             {
                 // Nhân vật sẽ dừng lại.
-                ChangeAnim("idle");
+                if (!healing)
+                {
+                    ChangeAnim("idle");
+                }
+                
             }
             else
             {
                 ChangeAnim("run");
             }
         }
-        
+        if(Physics2D.OverlapCircle(_groundCheckPoint.position, 0.2f, _waterLayer) && !IsJumping && !attack && !Physics2D.OverlapCircle(_groundCheckPoint.position, 0.2f, _groundLayer))
+        {
+            
+            if (Mathf.Abs(targetSpeed) < 0.01f && Mathf.Abs(RB.velocity.x) < 0.01f)
+            {
+                transform.rotation = Quaternion.Euler(0, 0,0);
+            }
+            else
+            {
+                ChangeAnim("run");
+                transform.rotation = Quaternion.Euler(0, 0, -_moveInput.x * 30);
+            }
+        }
 
-    
-        float speedDif = targetSpeed - RB.velocity.x;
+
+
+            float speedDif = targetSpeed - RB.velocity.x;
 
 
         float movement = speedDif * accelRate;
@@ -496,6 +603,7 @@ public class Player : Character
         // Đẩy lùi player theo hướng ngược lại với đòn tấn công
         Vector2 knockbackDirection = new Vector2(-attackDirection.normalized.x, 0); // Giữ nguyên chiều ngang, không thay đổi chiều dọc
         RB.AddForce(knockbackDirection * knockbackForce, ForceMode2D.Impulse);
+        isHurt = true;
     }
 
     #region CHECK METHODS
@@ -540,10 +648,8 @@ public class Player : Character
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.green;
-        Gizmos.DrawWireCube(_groundCheckPoint.position, _groundCheckSize);
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireCube(_frontWallCheckPoint.position, _wallCheckSize);
-        Gizmos.DrawWireCube(_backWallCheckPoint.position, _wallCheckSize);
+
+       
     }
     #endregion
 
@@ -551,18 +657,18 @@ public class Player : Character
     {
         if (collision.CompareTag("EHitBox") || collision.CompareTag("arrow"))
         {
-            if (!isParry)
+            if (!isParry && !IsDead)
             {
                 OnHit(1);
                 if (collision.transform.position.x >= transform.position.x)
                 {
                     KbFromR = true;
-                    Debug.Log("R");
+                
                 }
                 else
                 {
                     KbFromR = false;
-                    Debug.Log("L");
+                   
                 }
 
                 KbCounter = KbTotalTime;
@@ -574,6 +680,20 @@ public class Player : Character
     {
         isParry= false;
         firesSpark.SetActive(false);
+    }
+
+    public float Mana
+    {
+        get { return mana; }
+        set 
+        { 
+           if(mana != value)
+           {
+               mana = Mathf.Clamp(value,0,1);
+                manaStorage.fillAmount = Mana;
+            }
+        
+        }
     }
 
 }

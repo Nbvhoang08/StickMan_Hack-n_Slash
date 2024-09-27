@@ -25,19 +25,33 @@ public class Orc : Enemies
     public override void DesSpawn()
     {
         base.DesSpawn();
+        Destroy(this.gameObject);
     }
 
     protected override void OnDeath()
     {
         base.OnDeath();
-        ChangeAnim("die");
+
+
 
     }
     public override void Atk()
     {
         base.Atk();
         isAttacking = true;
-        ChangeAnim("atk");
+        if (!hurt)
+        {
+            ChangeAnim("atk");
+            if (isAttacking)
+            {
+                ChangeAnim("atk");
+                hitbox.SetActive(true);
+                Invoke(nameof(ResetAttack), 0.8f);
+
+            }
+        }
+        
+
 
     }
 
@@ -45,7 +59,7 @@ public class Orc : Enemies
     {
         base.Cast();
         skill();
-        Debug.Log("skill");
+
      
     }
     public override void Moving()
@@ -71,10 +85,17 @@ public class Orc : Enemies
         if (Vector2.Distance(Target.transform.position, des) < 0.1f)
         {
             ChangeAnim("atk1");
-            Debug.Log("hehe");
+         
         }
     }
-    
+    public override void ResetAttack()
+    {
+        base.ResetAttack();
+        isAttacking = false;
+        ChangeAnim("idle");
+
+    }
+
 
 
 
